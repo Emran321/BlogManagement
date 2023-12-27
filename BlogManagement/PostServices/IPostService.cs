@@ -12,6 +12,7 @@ namespace BlogManagement.PostServices
         Task<int> BlogAdd(PostServiceViewModel vm);
         Task<PostServiceViewModel> GetAll();
         Task<int> Edit(PostServiceViewModel model);
+        Task<PostServiceViewModel> GetRecordById(int id);
         Task<int> Delete(int id);
     }
 }

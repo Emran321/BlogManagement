@@ -1,149 +1,218 @@
-﻿@*@model BlogManagement.PostServices.PostServiceViewModel
+﻿@model BlogManagement.PostServices.PostServiceViewModel
 
-    @{
-        var message = TempData["successMessage"];
-        ViewBag.Title = "Blog List";
-        Layout = "~/Views/Shared/_Layout.cshtml";
-    }
-
-    <section class="content-header">
-        <h1>Blog</h1>
-    </section>*@
+@{
+    var message = TempData["successMessage"];
+    ViewBag.Title = "Blog List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 
 
 
+@using (Html.BeginForm("Index", "Post", FormMethod.Post, new { id = "blogFormId", @class = "formValidator" }))
+{
+    <section class="content">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="box">
+
+                    <div class="box-danger">
+
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                        <div class="box-header">
+                            <h4>Add Blog</h4>
+                        </div>
+
+                        <div class="box-body">
+                            @Html.HiddenFor(model => model.PostId, new { id = "postId" })
+                            @Html.HiddenFor(model => model.ActionId, new { id = "ActionId" })
+
+
+                            <div class="row">
+                                <div class="form-group" style="padding:0px">
+                                    <label for="message-text" class="col-form-label">Title :</label>
+                                    @Html.TextBoxFor(model => model.Title, new { Style = "width:100%;", id = "txtName", @class = "form-control input-sm ", @placeholder = "Short Name", required = "true" })
+                                    @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="form-group" style="padding:0px">
+                                    <label for="message-text" class="col-form-label">Content :</label>
+                                    @Html.TextBoxFor(model => model.Content, new { Style = "width:100%;", id = "txtShortName", @class = "form-control input-sm ", @placeholder = "Short Name", required = "true" })
+                                    @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="form-group" style="padding:0px">
+                                    <label for="message-text" class="col-form-label">Author :</label>
+                                    @Html.TextBoxFor(model => model.Author, new { Style = "width:100%;", id = "txtCode", @class = "form-control input-sm ", @placeholder = "Code", required = "true" })
+                                    @Html.ValidationMessageFor(model => model.Author, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group text-center">
+                                    <!-- Adding 'text-center' class to center the content -->
+                                    <div class="col-md-7 mt-3">
+                                        <!-- Adding 'mt-3' class for top margin -->
+                                        <button type="submit" id="btnSave" class="btn btn-primary btn-block"><i class='fa fa-edit'></i> Add</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="detailsModalLabel">Details</h5>
+                                        <button type="button" class="close" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body" id="detailsContent">
+                                        <!-- Details content will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
 
 
-
-@model BlogManagement.PostServices.PostServiceViewModel
-
-<!-- Add Post Form -->
-<div class="card-body">
-    <div class="row">
-        <div class="col-md-4">
-            <form asp-action="AddRecord" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <label asp-for="Title" class="control-label"></label>
-                    <input asp-for="Title" class="form-control" required />
-                    <span asp-validation-for="Title" class="text-danger"></span>
+                        <div class="box-footer">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label asp-for="Content" class="control-label"></label>
-                    <input asp-for="Content" class="form-control" required />
-                    <span asp-validation-for="Content" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Author" class="control-label"></label>
-                    <input asp-for="Author" class="form-control" required />
-                    <span asp-validation-for="Author" class="text-danger"></span>
-                </div>
+            </div>
 
-                <div class="form-group">
-                    <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="col-md-9">
+                <div class="box">
+                    <div class="box-danger">
+                        <div class="box-header">
+                            <h4>Blog List</h4>
+                        </div>
+                        <div class="box-body">
+                            <div class="table-responsive">
+                                <table id="tesDataTable" style="width:100%;" class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>SL</th>
+                                            <th>Title</th>
+                                            <th>Content</th>
+                                            <th>Author</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    @{int sl = 0;
+                                    }
+                                    <tbody>
+                                        @foreach (var item in Model.BlogList)
+                                        {
+                                            <tr>
+                                                <td style="width:10px;">
+                                                    @(++sl)
+                                                </td>
+                                                <td id="tdName_@item.PostId">@item.Title</td>
+                                                <td id="tdShortName_@item.PostId">@item.Content</td>
+                                                <td id="tdCode_@item.PostId">@item.Author</td>
+                                                <td>
+
+                                                    <a id="@item.PostId" onclick="makeEditble(this);" class="linkPointer" title="Edit">Edit</a>
+                                                    @Html.ActionLink("Delete", "Delete", new { id = item.PostId }, new { onclick = "return confirm('Are you sure you want to delete this?')" })
+                                                    <a href="#" class="details-btn" data-id="1">Details</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
-</div>
-<!-- Post List -->
-<table id="postTable">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Content</th>
-            <th>Author</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    @*<tbody>
-            @foreach (var post in Model.)
-            {
-                <tr data-postId="@post.PostId">
-                    <td>@post.Title</td>
-                    <td>@post.Content</td>
-                    <td>@post.Author</td>
-                    <td>
-                        <button class="editBtn">Edit</button>
-                        <button class="deleteBtn">Delete</button>
-                    </td>
-                </tr>
-            }
-        </tbody>*@
-</table>
+    </section>
+}
 
-<div id="resultMessage"></div>
+
 
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
+
+    <script type="text/javascript">
+
+        function makeEditble(elem) {
+            if (elem !== null) {
+                var rowId = elem.id;
+                $('#postId').val(rowId);
+                $('#ActionId').val(2);
+                $('#btnSave').html("<i class='fa fa-edit'></i>&nbsp;Update");
+                $('#txtCode').val($('#tdCode_' + rowId).text().trim());
+                $('#txtName').val($('#tdName_' + rowId).text().trim());
+                $('#txtShortName').val($('#tdShortName_' + rowId).text().trim());
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            }
+        }
+
+
         $(document).ready(function () {
-            // Add Post
-            $('#postForm').submit(function (e) {
+            $('.delete-link').on('click', function (e) {
                 e.preventDefault();
-                var formData = $(this).serialize();
+                var deleteLink = $(this).attr('href');
 
-                $.ajax({
-                    url: '/Blog/Add',
-                    type: 'POST',
-                    data: formData,
-                    success: function (result) {
-                        if (result !== -1) {
-                            $('#resultMessage').text('Post added successfully! ID: ' + result);
-                            // You might want to update the post list here
-                        } else {
-                            $('#resultMessage').text('Failed to add post.');
+                if (confirm('Are you sure you want to delete this?')) {
+                    $.ajax({
+                        url: deleteLink,
+                        method: 'POST',
+                        success: function (response) {
+                            $(this).closest('.post-item').remove();
+                        },
+                        error: function (error) {
+                            console.error('Error deleting:', error);
                         }
+                    });
+                }
+            });
+        });
+
+
+        $(document).ready(function () {
+            $('body').on('click', '.details-btn', function (e) {
+                e.preventDefault();
+                var id = $(this).data('id');
+                $.ajax({
+                    type: "GET",
+                    url: "/Post/Details/" + id,
+                    success: function (data) {
+                        $('#detailsContent').html(data);
+                        $('#detailsModal').modal('show');
                     },
                     error: function () {
-                        $('#resultMessage').text('An error occurred while processing your request.');
+                        // Handle error, if any
                     }
                 });
             });
 
-            // Edit Post
-            $('#postTable').on('click', '.editBtn', function () {
-                var postId = $(this).closest('tr').data('postId');
-
-                // Implement edit functionality using AJAX
-                // Make an AJAX call to retrieve post details and populate the form for editing
-                // You would need to handle this based on your backend structure
-                // For simplicity, I'm providing a basic structure
-                $.ajax({
-                    url: '/Blog/GetPostById/' + postId, // Replace with your route to get a post by ID
-                    type: 'GET',
-                    success: function (post) {
-                        $('#title').val(post.Title);
-                        $('#content').val(post.Content);
-                        $('#author').val(post.Author);
-
-                        // You might need to handle updating the post here after editing
-                    },
-                    error: function () {
-                        $('#resultMessage').text('An error occurred while fetching post details for editing.');
-                    }
-                });
+            // Manually close the modal when the close button inside the modal header is clicked
+            $('#detailsModal').on('click', '.modal-header .close', function () {
+                $('#detailsModal').modal('hide');
             });
+        });
 
-            // Delete Post
-            $('#postTable').on('click', '.deleteBtn', function () {
-                var postId = $(this).closest('tr').data('postId');
+        //function resetForm() {
+        //    $('#blogFormId')[0].reset();
+        //    $('#btnSave').html("<i class='fa fa-edit'></i>&nbsp;Add");
 
-                // Implement delete functionality using AJAX
-                $.ajax({
-                    url: '/Blog/Delete/' + postId, // Replace with your route to delete a post
-                    type: 'DELETE',
-                    success: function () {
-                        // You might want to update the post list here after deletion
-                        // Remove the deleted post row from the table
-                        $('tr[data-postId="' + postId + '"]').remove();
-                        $('#resultMessage').text('Post deleted successfully.');
-                    },
-                    error: function () {
-                        $('#resultMessage').text('An error occurred while deleting the post.');
-                    }
-                });
+        //}
+
+        $(document).ready(function () {
+            $('#tesDataTable').DataTable({
+                "paging": true,
+                "ordering": true,
+                "info": true,
+                order: [[0, 'desc']],
             });
         });
     </script>
@@ -156,70 +225,3 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-@*@model BlogManagement.Models.Posts
-
-
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
-
-        <div class="form-horizontal">
-            <h4>Posts</h4>
-            <hr />
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-            <div class="form-group">
-                @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                @Html.LabelFor(model => model.Content, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Content, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                @Html.LabelFor(model => model.Author, htmlAttributes: new { @class = "control-label col-md-2" })
-                <div class="col-md-10">
-                    @Html.EditorFor(model => model.Author, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.Author, "", new { @class = "text-danger" })
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="message-text" class="col-form-label">Receive Date:</label>
-                <input name="DateCreated" asp-for="DateCreated" type="datetime" value="@DateTime.Now.ToString("dd/MM/yyyy")" required="required" class="datepicker form-control " placeholder="MRR Date" autocomplete="off">
-                @Html.ValidationMessageFor(model => model.DateCreated, "", new { @class = "text-danger" })
-            </div>
-            <div class="form-group">
-                <div class="col-md-offset-2 col-md-10">
-                    <input type="submit" value="Create" class="btn btn-default" />
-                </div>
-            </div>
-        </div>
-    }
-
-    <div>
-        @Html.ActionLink("Back to List", "Index")
-    </div>
-
-    @section Scripts {
-        @Scripts.Render("~/bundles/jqueryval")
-    }*@

@@ -40,17 +40,27 @@ namespace BlogManagement.Controllers
             {
                 //Edit
                 await _postService.Edit(vm);
-            }
-            else if (vm.ActionEum == ActionEnum.Delete)
-            {
-                //Delete
-                await _postService.Delete(vm.PostId);
-            }
+            }           
             else
             {
                 return View("Error");
             }
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpGet]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var res = await _postService.Delete(id);
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> Details(int id)
+        {
+            var res = await _postService.GetRecordById(id);
+            return PartialView("_DetailsPartialView", res);
+        }
+
     }
 }

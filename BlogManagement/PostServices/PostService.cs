@@ -87,5 +87,18 @@ namespace BlogManagement.PostServices
                                                  .AsEnumerable());
             return model;
         }
+
+
+        public async Task<PostServiceViewModel> GetRecordById(int id)
+        {
+            var result = await _context.Posts.FindAsync(id);
+            PostServiceViewModel model = new PostServiceViewModel();
+            model.PostId = result.PostId;
+            model.Title = result.Title;
+            model.Content = result.Content;
+            model.Author = result.Author;
+            model.DateCreated = result.DateCreated;
+            return model;
+        }
     }
 }
