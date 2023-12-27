@@ -8,7 +8,7 @@
 
 
 
-@using (Html.BeginForm("Index", "Post", FormMethod.Post, new { id = "blogFormId", @class = "formValidator" }))
+@using (Html.BeginForm("Index", "Post", FormMethod.Post, new { id = "blogFormId", @class = "formValidator", onreset = "resetDDL();" }))
 {
     <section class="content">
         <div class="row">
@@ -32,33 +32,36 @@
                             <div class="row">
                                 <div class="form-group" style="padding:0px">
                                     <label for="message-text" class="col-form-label">Title :</label>
-                                    @Html.TextBoxFor(model => model.Title, new { Style = "width:100%;", id = "txtName", @class = "form-control input-sm ", @placeholder = "Short Name", required = "true" })
+                                    @Html.TextBoxFor(model => model.Title, new { Style = "width:100%;", id = "txtTitle", @class = "form-control input-sm ", @placeholder = "Title", required = "true" })
                                     @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
                                 </div>
                                 <div class="form-group" style="padding:0px">
                                     <label for="message-text" class="col-form-label">Content :</label>
-                                    @Html.TextBoxFor(model => model.Content, new { Style = "width:100%;", id = "txtShortName", @class = "form-control input-sm ", @placeholder = "Short Name", required = "true" })
+                                    @Html.TextAreaFor(model => model.Content, new { style = "width:100%;", id = "txtContent", @class = "form-control input-sm", @placeholder = "Content", required = "true" })
                                     @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
                                 </div>
+
                                 <div class="form-group" style="padding:0px">
                                     <label for="message-text" class="col-form-label">Author :</label>
-                                    @Html.TextBoxFor(model => model.Author, new { Style = "width:100%;", id = "txtCode", @class = "form-control input-sm ", @placeholder = "Code", required = "true" })
+                                    @Html.TextBoxFor(model => model.Author, new { Style = "width:100%;", id = "txtAuthor", @class = "form-control input-sm ", @placeholder = "Author", required = "true" })
                                     @Html.ValidationMessageFor(model => model.Author, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="form-group" style="padding:0px">
+                                    <label>Date :</label>
+                                    <input name="DateCreated" asp-for="DateCreated" type="date" required="required" class="datePicker form-control" id="txtDate" placeholder="Date" autocomplete="off">
+                                    @Html.ValidationMessageFor(model => model.DateCreated, "", new { @class = "text-danger" })
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="form-group text-center">
-                                    <!-- Adding 'text-center' class to center the content -->
-                                    <div class="col-md-7 mt-3">
-                                        <!-- Adding 'mt-3' class for top margin -->
-                                        <button type="submit" id="btnSave" class="btn btn-primary btn-block"><i class='fa fa-edit'></i> Add</button>
-                                    </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <button type="button" onclick="resetForm()" class="btn btn-secondary btn-block" data-dismiss="modal">Reset</button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="submit" style="float: right;" id="btnSave" class="btn btn-primary btn-block"><i class='fa fa-edit'></i> Add</button>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Modal -->
                         <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
@@ -99,6 +102,7 @@
                                             <th>Title</th>
                                             <th>Content</th>
                                             <th>Author</th>
+                                            <th>Date</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -111,19 +115,19 @@
                                                 <td style="width:10px;">
                                                     @(++sl)
                                                 </td>
-                                                <td id="tdName_@item.PostId">@item.Title</td>
-                                                <td id="tdShortName_@item.PostId">@item.Content</td>
-                                                <td id="tdCode_@item.PostId">@item.Author</td>
-                                                <td>
+                                                <td id="tdTitle_@item.PostId">@item.Title</td>
+                                                <td id="tdContent_@item.PostId">@item.Content</td>
+                                                <td id="tdAuthor_@item.PostId">@item.Author</td>
+                                                <td id="txtDate_@item.PostId">@item.DateCreated.ToString("dd-MM-yyyy")</td>
 
+                                                <td>
                                                     <a id="@item.PostId" onclick="makeEditble(this);" class="linkPointer" title="Edit">Edit</a>
                                                     @Html.ActionLink("Delete", "Delete", new { id = item.PostId }, new { onclick = "return confirm('Are you sure you want to delete this?')" })
-                                                    <a href="#" class="details-btn" data-id="1">Details</a>
+                                                    <a href="#" class="details-link" data-post-id="@item.PostId">Details</a>
                                                 </td>
                                             </tr>
                                         }
                                     </tbody>
-
                                 </table>
                             </div>
                         </div>
@@ -147,9 +151,10 @@
                 $('#postId').val(rowId);
                 $('#ActionId').val(2);
                 $('#btnSave').html("<i class='fa fa-edit'></i>&nbsp;Update");
-                $('#txtCode').val($('#tdCode_' + rowId).text().trim());
-                $('#txtName').val($('#tdName_' + rowId).text().trim());
-                $('#txtShortName').val($('#tdShortName_' + rowId).text().trim());
+                $('#txtTitle').val($('#tdTitle_' + rowId).text().trim());
+                $('#txtContent').val($('#tdContent_' + rowId).text().trim());
+                $('#txtAuthor').val($('#tdAuthor_' + rowId).text().trim());
+                $('#txtDate').val($('#txtDate_' + rowId).text().trim());
 
                 window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -177,35 +182,41 @@
             });
         });
 
+       
 
         $(document).ready(function () {
-            $('body').on('click', '.details-btn', function (e) {
-                e.preventDefault();
-                var id = $(this).data('id');
+            $('.details-link').click(function (e) {
+                e.preventDefault(); 
+
+                var postId = $(this).data('post-id'); 
+                var url = '/Post/Details/' + postId; 
+
                 $.ajax({
-                    type: "GET",
-                    url: "/Post/Details/" + id,
+                    url: url,
+                    type: 'GET', 
                     success: function (data) {
                         $('#detailsContent').html(data);
+
+                        // Open the modal
                         $('#detailsModal').modal('show');
                     },
-                    error: function () {
-                        // Handle error, if any
+                    error: function (xhr, status, error) {
+                        // Handle errors here
+                        console.error(error);
                     }
                 });
-            });
-
-            // Manually close the modal when the close button inside the modal header is clicked
-            $('#detailsModal').on('click', '.modal-header .close', function () {
+            }); $('#detailsModal').on('click', '.modal-header .close', function () {
                 $('#detailsModal').modal('hide');
             });
         });
 
-        //function resetForm() {
-        //    $('#blogFormId')[0].reset();
-        //    $('#btnSave').html("<i class='fa fa-edit'></i>&nbsp;Add");
 
-        //}
+
+        function resetForm() {
+            $('#blogFormId')[0].reset();
+            $('#btnSave').html("<i class='fa fa-edit'></i>&nbsp;Add");
+
+        }
 
         $(document).ready(function () {
             $('#tesDataTable').DataTable({

@@ -1,8 +1,44 @@
 ﻿@model BlogManagement.PostServices.PostServiceViewModel
 
+<style>
+    .details-container {
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        max-width: 400px; /* Adjust this width as needed */
+        margin: 0 auto; /* Centers the container horizontally */
+    }
+
+    .detail {
+        margin-bottom: 10px;
+    }
+
+    .detail-label {
+        font-weight: bold;
+        margin-right: 5px;
+    }
+
+    .detail-value {
+        color: #333;
+    }
+
+</style>
 <div class="details-container">
-    <p><strong>Title :</strong> @Model.Title</p>
-    <p><strong>Content :</strong> @Model.Content</p>
-    <p><strong>Author :</strong> @Model.Author</p>
-    <p><strong>Date :</strong> @Model.DateCreated</p>
+    <div class="detail">
+        <span class="detail-label">Title:</span>
+        <span class="detail-value">@Model.Title</span>
+    </div>
+    <div class="detail">
+        <span class="detail-label">Content:</span>
+        <p class="detail-value">@Model.Content</p>
+    </div>
+    <div class="detail">
+        <span class="detail-label">Author:</span>
+        <span class="detail-value">@Model.Author</span>
+    </div>
+    <div class="detail">
+        <span class="detail-label">Date:</span>
+        <span class="detail-value">@Model.DateCreated.ToString("dd-MM-yyyy")</span>
+    </div>
 </div>

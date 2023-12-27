@@ -60,7 +60,7 @@ namespace BlogManagement.PostServices
             obj.Title = model.Title;
             obj.Content = model.Content;
             obj.Author = model.Author;
-            obj.DateCreated = DateTime.Now;
+            obj.DateCreated = model.DateCreated;
 
             if (await _context.SaveChangesAsync() > 0)
             {
